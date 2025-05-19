@@ -268,7 +268,8 @@ function InitializePyramid(pyramid, tilesBaseUrl)
     segmentationAlgo = 'stardist';
     if(roi != null){
       console.log('Stardist button pressed and roi is selected');
-      getTilesCoordinates();
+      var tilesExtent = getTilesCoordinates();
+      pasteProcessedImage(imageUrl, tilesExtent);
     } else {
       alert('Error - Select a region of interest to run the chosen algorithm');
       return;

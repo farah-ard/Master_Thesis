@@ -143,27 +143,14 @@ def cell_cnt(img):
     return nbLabels-1
 
     
-"""
+
 def starDist(img):
     # prints a list of available models
-    StarDist2D.from_pretrained()
+    
 
     # creates a pretrained model
-    X = ["TCGA-2Z-A9J9-01A-01-TS1.tif"] 
-    X = list(map(imread,X))
-    
-    n_channel = 1 if X[0].ndim == 2 else X[0].shape[-1]
-    axis_norm = (0,1)   # normalize channels independently
-    # axis_norm = (0,1,2) # normalize channels jointly
-    if n_channel > 1:
-        print("Normalizing image channels %s." % ('jointly' if axis_norm is None or 2 in axis_norm else 'independently'))
-
-    img = normalize(X[0], 1, 99.8, axis=axis_norm)
-    
-    model = StarDist2D.from_pretrained('2D_versatile_he')
-    labels, _ = model.predict_instances(img)
-
-    unique_labels = np.unique(labels)
+    #X = ["TCGA-2Z-A9J9-01A-01-TS1.tif"] 
+   
     # Cell count = number of items - background
     #print(len(unique_labels)-1)
 
@@ -173,8 +160,5 @@ def starDist(img):
     #plt.axis('off')
     #plt.show()
     #cv.imwrite('TCGA-2Z-A9J9-01A-01-TS1_StarDist_pred.jpg', labels)
-    return labels
+    return True
 
-if __name__ == '__main__':
-    cell_detection("processed_image.jpg")
-"""
