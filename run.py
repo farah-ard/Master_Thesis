@@ -8,18 +8,11 @@ from io import BytesIO
 from algorithms import *
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy import ndimage
-from skimage import measure, color, io
 from stardist.models import StarDist2D
-from stardist.plot import render_label
-from csbdeep.utils import normalize
-import matplotlib.pyplot as plt
-from tifffile import imread
-from csbdeep.utils import Path, normalize
 
-from stardist import random_label_cmap, _draw_polygons, export_imagej_rois
 
-lbl_cmap = random_label_cmap()
+np.random.seed(6)
+
 
 # creates a pretrained model
 stardist_model = StarDist2D.from_pretrained('2D_versatile_he')
@@ -84,62 +77,19 @@ def download_tiles():
     full_img.save('static/reconstructed_image.jpg')
     # Image processing
     if segmentation_algo == 'watershed':
-        cell_detection_output = cell_detection('static/reconstructed_image.jpg', 140)
+        cell_detection('static/reconstructed_image.jpg', 140)
 
     if segmentation_algo == 'stardist':
-        X = ["static/reconstructed_image.jpg"] 
-        X = list(map(cv.imread,X))
-        #X = [cv.imread('')]
-        n_channel = 1 if X[0].ndim == 2 else X[0].shape[-1]
-        axis_norm = (0,1)   # normalize channels independently
-        #axis_norm = (0,1,2) # normalize channels jointly
-
-        if n_channel > 1:
-            print("Normalizing image channels %s." % ('jointly' if axis_norm is None or 2 in axis_norm else 'independently'))
+        stardist("static/reconstructed_image.jpg", stardist_model)
         
-        #cv.imwrite('static/temp_img.jpg', X[0])
-        img = normalize(X[0], 1, 99.8, axis=axis_norm)
-
-        #img_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        #img = normalize(img_gray, 1, 99.8, axis=(0,1))
-        #X = list(map(imread,X))
-        #n_channel = 1 if X[0].ndim == 2 else X[0].shape[-1]
-        #axis_norm = (0,1)   # normalize channels independently
-        #axis_norm = (0,1,2) # normalize channels jointly
-
-        #if n_channel > 1:
-        #    print("Normalizing image channels %s." % ('jointly' if axis_norm is None or 2 in axis_norm else 'independently'))
-
-        labels, details = stardist_model.predict_instances(img)
-        cv.imwrite('static/labels.jpg', labels)
-        #From ChatGPT
-        # Ensure img is in the range [0, 255] and 3 channels
-        if img.ndim == 2:
-            img_rgb = np.stack([img] * 3, axis=-1)
-        else:
-            img_rgb = img[..., :3]
-        img_rgb = (img_rgb * 255).astype(np.uint8)
-        transparency = 0.4
-        # Create label overlay with the same shape
-        label_img = lbl_cmap(labels)  # This returns an RGBA image in [0,1]
-        label_rgb = (label_img[..., :3] * 255).astype(np.uint8)
-
-        # Blend images
-        blended = (transparency * label_rgb + (1 - transparency) * img_rgb).astype(np.uint8)
-
-        # Convert to PIL and save
-        Image.fromarray(blended).save('static/mask_output.jpg')
-        cell_detection_output = True
+        
     
-    if cell_detection_output == True:
-        img_url = url_for('static',filename='mask_output.jpg')
+    img_url = url_for('static',filename='mask_output.jpg')
 
-    #full_img.save('static/reconstructed_image.jpg')
-    
-    #return send_file('reconstructed_image.jpg', mimetype='image/jpg')
+
     return jsonify({'image_url': img_url})
 
 
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug = False)
